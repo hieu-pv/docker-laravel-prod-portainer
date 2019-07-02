@@ -4,7 +4,7 @@ services:
   app:
     image: nightfuryest/nginx-php-alpine
     volumes:
-      - $PROJECT_DIRECTORY:/var/www/app
+      - /home/projects/nsilly.com:/var/www/app
     networks:
       - default
       - traefik-public
