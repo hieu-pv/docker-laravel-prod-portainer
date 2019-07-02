@@ -1,17 +1,25 @@
-version: "3.3"
+version: '3.3'
 
 services:
-  laravel-prod:
-    build:
-      context: .
-      args:
-        DEFLAUNT_PHP_VERSION: $DEFLAUNT_PHP_VERSION
-    container_name: laravel_prod
-    working_dir: /var/www/app
+  app:
+    image: nightfuryest/nginx-php-alpine
     volumes:
-      - ./docker/php/php.ini-production:/usr/local/etc/php/php.ini
-      - ./docker/nginx/nginx.conf:/etc/nginx/nginx.conf
-    restart: always
-    ports:
-      - $NGINX_PORT:8080
-      - 443:443
+      - $PROJECT_DIRECTORY:/var/www/app
+    networks:
+      - default
+      - traefik-public
+    deploy:
+      labels:
+        - traefik.frontend.rule=Host:nsilly.com
+        - traefik.enable=true
+        - traefik.port=8080
+        - traefik.tags=${TRAEFIK_PUBLIC_TAG:-traefik-public}
+        - traefik.docker.network=traefik-public
+        # Traefik service that listens to HTTP
+        - traefik.redirectorservice.frontend.entryPoints=http
+        - traefik.redirectorservice.frontend.redirect.entryPoint=https
+        # Traefik service that listens to HTTPS
+        - traefik.webservice.frontend.entryPoints=https
+networks:
+  traefik-public:
+    external: true
